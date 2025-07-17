@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PTConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "test -n xdddd"
+    }
+  }
+}

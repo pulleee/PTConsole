@@ -10,14 +10,10 @@ namespace PTConsole.Commands
 
         public ConfigCommand()
         {
-
         }
 
         public override int Execute(CommandContext context, Settings settings)
-        {
-            
-
-
+        {            
             return 0;
         }
     }

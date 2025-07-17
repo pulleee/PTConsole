@@ -19,7 +19,7 @@ Created to make working on a project and the related documenting more fun and ea
 	- [] Sessions
 	- [] Tasks
 
-- [] Fully fletched CLI-Stopwatch for to time your Sessions
+- [] Fully fletched CLI-Stopwatch to time your working sessions
 	- [] Support FIGlet fonts
 
 - [] Userfriendly CLI UI for minimal interaction

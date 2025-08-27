@@ -27,7 +27,7 @@ namespace PTConsole.Infrastructure
             return await _dbSet.Where(predicate).ToListAsync();
         }
 
-        public async Task<TEntity?> GetAsync(Guid id)
+        public async Task<TEntity?> GetAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
@@ -53,7 +53,7 @@ namespace PTConsole.Infrastructure
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(int id)
         {
             var entity = await GetAsync(id);
 
@@ -92,7 +92,7 @@ namespace PTConsole.Infrastructure
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteBatchAsync(IEnumerable<Guid> ids)
+        public async Task DeleteBatchAsync(IEnumerable<int> ids)
         {
             foreach (var id in ids)
             {

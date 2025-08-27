@@ -6,14 +6,14 @@ namespace PTConsole.Interfaces
     {
         Task<IEnumerable<TEntity>> GetAllAsync();
         Task<IEnumerable<TEntity>> GetWhereAsync(Expression<Func<TEntity, bool>> predicate);
-        Task<TEntity?> GetAsync(Guid id);
+        Task<TEntity?> GetAsync(int id);
         Task CreateAsync(TEntity entity);
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(int id);
         Task DeleteAsync(TEntity entity);
         Task UpdateAsync(TEntity entity);
         Task CreateBatchAsync(IEnumerable<TEntity> entities);
         Task DeleteBatchAsync(IEnumerable<TEntity> entities);
-        Task DeleteBatchAsync(IEnumerable<Guid> ids);
+        Task DeleteBatchAsync(IEnumerable<int> ids);
         Task UpdateBatchAsync(IEnumerable<TEntity> entities);
     }
 }

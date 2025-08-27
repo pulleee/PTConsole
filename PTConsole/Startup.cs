@@ -28,7 +28,9 @@ namespace PTConsole
 
         public void ConfigureCommands(ICommandApp app)
         {
-            app.Configure(config => config.AddCommand<TestCommand>("test"));
+            app.Configure(config => config.AddCommand<CreateClientCommand>("create_client"));
+            app.Configure(config => config.AddCommand<DeleteClientCommand>("delete_client"));
+            app.Configure(config => config.AddCommand<ListClientsCommand>("list_clients"));
         }
     }
 }

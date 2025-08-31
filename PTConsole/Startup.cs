@@ -19,8 +19,10 @@ namespace PTConsole
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var test = Configuration["SQLite"];
+
             // Contexts
-            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(Configuration["SQLite"]));
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(test));
 
             // Services
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -28,9 +30,14 @@ namespace PTConsole
 
         public void ConfigureCommands(ICommandApp app)
         {
-            app.Configure(config => config.AddCommand<CreateClientCommand>("create_client"));
-            app.Configure(config => config.AddCommand<DeleteClientCommand>("delete_client"));
-            app.Configure(config => config.AddCommand<ListClientsCommand>("list_clients"));
+            app.Configure(config => config.AddBranch("client",
+                client =>
+                {
+                    client.AddCommand<CreateClientCommand>("create");
+                    client.AddCommand<DeleteClientCommand>("delete");
+                    client.AddCommand<ListClientsCommand>("list");
+                }));
+
         }
     }
 }

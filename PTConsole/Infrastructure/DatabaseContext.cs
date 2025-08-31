@@ -10,48 +10,65 @@ namespace PTConsole.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Client
-            var clientBuilder = modelBuilder.Entity<Client>().ToTable("Client");
-            clientBuilder.HasKey(o => o.Id);
+            modelBuilder.Entity<Client>(
+                b =>
+                {
+                    b.ToTable("Client");
+                    b.HasKey(e => e.Id);
+                });
 
             // Note
-            var noteBuilder = modelBuilder.Entity<Note>().ToTable("Note");
-            noteBuilder.HasKey(o => o.Id);
-            noteBuilder.HasOne(r => r.User);
+            modelBuilder.Entity<Note>(
+                b =>
+                {
+                    b.HasKey(e => e.Id);
+                    b.HasOne(e => e.User);
+                });
+
 
             // Project
-            var projectBuilder = modelBuilder.Entity<Project>().ToTable("Project");
-            projectBuilder
-                .HasKey(o => o.Id);
-            projectBuilder
-                .HasOne(r => r.Client)
-                .WithMany()
-                .OnDelete(DeleteBehavior.SetNull);
-            projectBuilder
-                .HasMany(r => r.Users)
-                .WithMany(r => r.Projects);
-            projectBuilder
-                .HasMany(r => r.Tasks);
+            modelBuilder.Entity<Project>(
+                b =>
+                {
+                    b.HasKey(e => e.Id);
+                    b.HasOne(e => e.Client)
+                        .WithMany()
+                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasMany(e => e.Users)
+                        .WithMany(e => e.Projects);
+                    b.HasMany(e => e.Tasks);
+                });
+
 
             // Session
-            var sessionBuilder = modelBuilder.Entity<Session>().ToTable("Session");
-            sessionBuilder
-                .HasOne(r => r.User)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Cascade);
-            sessionBuilder
-                .HasOne(r => r.Project);
+            modelBuilder.Entity<Session>(
+                b =>
+                {
+                    b.HasOne(e => e.User)
+                          .WithMany()
+                          .OnDelete(DeleteBehavior.Cascade);
+                    b.HasOne(e => e.Project);
+                });
+
 
             // Task
-            var workTaskBuilder = modelBuilder.Entity<WorkTask>().ToTable("Task");
-            workTaskBuilder.HasKey(o => o.Id);
+            modelBuilder.Entity<WorkTask>(
+                b=>
+                {
+                    b.HasKey(o => o.Id);
+                });
+
 
             // User
-            var userBuilder = modelBuilder.Entity<User>().ToTable("User");
-            userBuilder.HasKey(o => o.Id);
-            userBuilder.HasMany(r => r.Sessions)
-                .WithOne(r => r.User);
-            userBuilder.HasMany(r => r.Projects)
-                .WithMany(r => r.Users);
+            modelBuilder.Entity<User>(
+                b =>
+                {
+                    b.HasKey(o => o.Id);
+                    b.HasMany(r => r.Sessions)
+                        .WithOne(r => r.User);
+                    b.HasMany(r => r.Projects)
+                        .WithMany(r => r.Users);
+                });
         }
     }
 }

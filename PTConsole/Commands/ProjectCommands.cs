@@ -3,7 +3,6 @@ using PTConsole.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
-using System.Drawing;
 
 namespace PTConsole.Commands
 {
@@ -34,7 +33,7 @@ namespace PTConsole.Commands
 
             [CommandOption("--color")]
             [Description("Color for the project (hex format: #RRGGBB)")]
-            public string? Color { get; set; }
+            public string? ColorHex { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -55,7 +54,7 @@ namespace PTConsole.Commands
                 Name = settings.Name,
                 Description = settings.Description,
                 Client = client,
-                Color = settings.Color != null ? ColorTranslator.FromHtml(settings.Color) : System.Drawing.Color.Blue,
+                Color = settings.ColorHex != null ? Color.FromHex(settings.ColorHex) : Color.Green,
             };
 
             await _projectRepository.CreateAsync(project);
@@ -93,7 +92,7 @@ namespace PTConsole.Commands
                     project.Description,
                     project.Client?.Name ?? "N/A",
                     project.Duration.ToString(),
-                    $"[{ColorTranslator.ToHtml(project.Color)}]■[/]"
+                    $"[{project.Color.ToString()}]{project.ColorHex}[/]"
                 );
             }
 

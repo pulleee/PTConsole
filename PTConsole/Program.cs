@@ -23,13 +23,13 @@ namespace PTConsole
             var configuration = new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>()
                 {
-                    ["SQLite"] = "Db.sqlite"
+                    ["SQLite"] = "Data Source=Db.sqlite"
                 })
                 .Build();
 
-            var services = new ServiceCollection();
             var startup = new Startup(configuration);
 
+            var services = new ServiceCollection();
             startup.ConfigureServices(services);
 
             var app = new CommandApp(new TypeRegistrar(services));

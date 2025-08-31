@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿
+using Spectre.Console;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PTConsole.Models
 {
@@ -7,10 +9,16 @@ namespace PTConsole.Models
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public TimeSpan Duration { get; set; } = TimeSpan.Zero;
-        public Color Color { get; set; }
+        public string ColorHex { get; set; }
         public Client? Client { get; set; }
         public ICollection<WorkTask>? Tasks { get; set; } = [];
         public ICollection<User> Users { get; set; } = [];
-        
+
+        [NotMapped]
+        public Color Color
+        {
+            get => Color.FromHex(ColorHex);
+            set => ColorHex = value.ToHex();
+        }
     }
 }

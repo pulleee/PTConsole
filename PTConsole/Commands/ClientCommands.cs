@@ -3,7 +3,6 @@ using PTConsole.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using System.ComponentModel;
-using System.Drawing;
 
 namespace PTConsole.Commands
 {
@@ -28,7 +27,7 @@ namespace PTConsole.Commands
 
             [CommandOption("-c|--color")]
             [Description("Color for the client (hex format: #RRGGBB)")]
-            public string? Color { get; set; }
+            public string? ColorHex { get; set; }
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
@@ -37,7 +36,7 @@ namespace PTConsole.Commands
             {
                 Name = settings.Name,
                 Alias = settings.Alias,
-                Color = settings.Color != null ? ColorTranslator.FromHtml(settings.Color) : System.Drawing.Color.Red
+                Color = settings.ColorHex != null ? Color.FromHex(settings.ColorHex) : Color.Blue
             };
 
             await _clientRepository.CreateAsync(client);
@@ -71,7 +70,7 @@ namespace PTConsole.Commands
                     client.Id.ToString(),
                     client.Name,
                     client.Alias,
-                    $"[{ColorTranslator.ToHtml(client.Color)}]■[/]"
+                    $"[{client.Color.ToString()}]{client.ColorHex}[/]"
                 );
             }
 

@@ -9,7 +9,14 @@ namespace PTConsole
     {
         public static async Task Main(string[] args)
         {
-            await CreateCommandApp().RunAsync(args);
+            int returnCode = 0;
+            ICommandApp app = CreateCommandApp();
+
+            do
+            {
+                returnCode = await app.RunAsync(args);
+
+            } while (returnCode > 0);
         }
 
         /*
@@ -32,9 +39,9 @@ namespace PTConsole
             var services = new ServiceCollection();
             startup.ConfigureServices(services);
 
-            var app = new CommandApp(new TypeRegistrar(services));
+            var app = new CommandApp(new TypeRegistrar(services));            
 
-            startup.ConfigureCommands(app);
+            startup.ConfigureCommands(app);            
 
             return app;
         }

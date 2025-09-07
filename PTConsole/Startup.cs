@@ -30,6 +30,8 @@ namespace PTConsole
 
         public void ConfigureCommands(ICommandApp app)
         {
+            app.Configure(config => config.AddCommand<GuiCommand>("gui"));
+
             app.Configure(config => config.AddBranch("client",
                 client =>
                 {

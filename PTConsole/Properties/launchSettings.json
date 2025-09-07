@@ -2,7 +2,7 @@
   "profiles": {
     "PTConsole": {
       "commandName": "Project",
-      "commandLineArgs": "create_client test test"
+      "commandLineArgs": "gui"
     }
   }
 }

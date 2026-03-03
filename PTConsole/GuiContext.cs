@@ -10,6 +10,7 @@ namespace PTConsole
         private Layout _inputLayout;
 
         private string _input = "[blue]>[/] ";
+        private string _userInput = "";
 
         public GuiContext()
         {
@@ -17,13 +18,19 @@ namespace PTConsole
             _contentLayout = new Layout("Content");
             _inputLayout = new Layout("Input");
 
-            // Set Size
-            _inputLayout.Size(3);
-
             Layout = new Layout("Root")
                 .SplitRows(
                     _contentLayout,
                     _inputLayout);
+        }
+
+        private int GetInputPanelHeight()
+        {
+            // "> " prefix (2 visible chars) + user text, wrapped to panel inner width (terminal - 2 border chars)
+            var innerWidth = Math.Max(1, Console.WindowWidth - 2);
+            var visibleLength = 2 + _userInput.Length;
+            var lines = (int)Math.Ceiling((double)visibleLength / innerWidth) + 1;
+            return Math.Max(1, lines) + 2; // +2 for top/bottom border
         }
 
         public Panel CreateContentPanel()
@@ -51,33 +58,38 @@ namespace PTConsole
             // TODO: currently redraws after the read key, so it gets cleared and redrawn by the live context
             Task.Run(() =>
             {
-                var prefixLength = _input.Length;
                 while (true)
-                {                    
-                    var key = Console.ReadKey();
+                {
+                    var key = Console.ReadKey(true);
 
-                    //if(key.Key == ConsoleKey.Backspace && _input.Length <= prefixLength)
-                    //{
-                    //    _input.Replace("\b", "");
-                    //}
+                    if (key.Key == ConsoleKey.Backspace)
+                    {
+                        if (_userInput.Length > 0)
+                            _userInput = _userInput[..^1];
+                    }
+                    else if (!char.IsControl(key.KeyChar))
+                    {
+                        _userInput += key.KeyChar;
+                    }
 
-                    _input += key.KeyChar;
+                    _input = $"[blue]>[/] {_userInput}";
                 }
             });
             
             await AnsiConsole.Live(Layout)
                 .AutoClear(false)
                 .Cropping(VerticalOverflowCropping.Bottom)
-                .Overflow(VerticalOverflow.Crop)
+                .Overflow(VerticalOverflow.Ellipsis)
                 .StartAsync(async ctx =>
                 {
                     while (true)
                     {
+                        _inputLayout.Size(GetInputPanelHeight());
                         _inputLayout.Update(CreateInputPanel());
                         _contentLayout.Update(CreateContentPanel());
                         ctx.Refresh();
                         
-                        Console.SetCursorPosition(3, 24);
+                        //Console.SetCursorPosition(3, 24);
                         //await Task.Delay(1000);
                     }
                 });

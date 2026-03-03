@@ -1,4 +1,4 @@
-﻿namespace PTConsole.Models
+﻿namespace PTConsole.Models.Base
 {
     public abstract class AbstractEntity
     {

@@ -1,4 +1,5 @@
-﻿using Spectre.Console;
+﻿using PTConsole.Models.Base;
+using Spectre.Console;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PTConsole.Models

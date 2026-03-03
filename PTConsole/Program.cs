@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PTConsole.Infrastructure;
 using Spectre.Console.Cli;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace PTConsole
 {
@@ -19,12 +20,11 @@ namespace PTConsole
             } while (returnCode > 0);
         }
 
-        /*
-         * Creates a new instance of the CommandApp with configured services.
-         * This method sets up the dependency injection container and configures the command line application.
-         *
-         * @returns An instance of ICommandApp ready to run commands.
-         */
+        /// <summary>
+        /// Creates a new instance of the CommandApp with configured services.
+        /// This method sets up the dependency injection container and configures the command line application.        
+        /// </summary>
+        /// <returns>Instance of ICommandApp</returns>
         public static ICommandApp CreateCommandApp()
         {
             var configuration = new ConfigurationBuilder()

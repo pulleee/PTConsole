@@ -1,4 +1,6 @@
-﻿namespace PTConsole.Models
+﻿using PTConsole.Models.Base;
+
+namespace PTConsole.Models
 {
     /*
      * Represents the Working Session on a Project. Time spend this Session gets summed up in the Projects Duration.  

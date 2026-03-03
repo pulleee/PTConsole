@@ -1,4 +1,6 @@
-﻿namespace PTConsole.Models
+﻿using PTConsole.Models.Base;
+
+namespace PTConsole.Models
 {
     public class Note : AbstractEntity
     {

@@ -1,25 +1,27 @@
-﻿using Spectre.Console;
+using Microsoft.Extensions.Configuration;
 using Spectre.Console.Cli;
-using System.ComponentModel;
+using PTConsole.UI;
 
 namespace PTConsole.Commands
 {
     public sealed class GuiCommand : AsyncCommand<GuiCommand.Settings>
     {
+        private readonly IConfiguration _configuration;
+
         public sealed class Settings : CommandSettings
         {
         }
 
-        public GuiCommand()
+        public GuiCommand(IConfiguration configuration)
         {
+            _configuration = configuration;
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            var xd = new GuiContext();
-
-            await xd.Draw();
-
+            var dispatcher = new GuiCommandDispatcher(_configuration);
+            var gui = new GuiContext(dispatcher);
+            await gui.Draw();
             return 0;
         }
     }

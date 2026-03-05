@@ -9,10 +9,12 @@ namespace PTConsole.Commands
     public class CreateClientCommand : AsyncCommand<CreateClientCommand.Settings>
     {
         private readonly IRepository<Client> _clientRepository;
+        private readonly IAnsiConsole _console;
 
-        public CreateClientCommand(IRepository<Client> clientRepository)
+        public CreateClientCommand(IRepository<Client> clientRepository, IAnsiConsole console)
         {
             _clientRepository = clientRepository;
+            _console = console;
         }
 
         public class Settings : CommandSettings
@@ -40,7 +42,7 @@ namespace PTConsole.Commands
             };
 
             await _clientRepository.CreateAsync(client);
-            AnsiConsole.MarkupLine($"[green]Created client '{settings.Name}' successfully![/]");
+            _console.MarkupLine($"[green]Created client '{settings.Name}' successfully![/]");
             return 0;
         }
     }
@@ -48,10 +50,12 @@ namespace PTConsole.Commands
     public class ListClientsCommand : AsyncCommand
     {
         private readonly IRepository<Client> _clientRepository;
+        private readonly IAnsiConsole _console;
 
-        public ListClientsCommand(IRepository<Client> clientRepository)
+        public ListClientsCommand(IRepository<Client> clientRepository, IAnsiConsole console)
         {
             _clientRepository = clientRepository;
+            _console = console;
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context)
@@ -74,7 +78,7 @@ namespace PTConsole.Commands
                 );
             }
 
-            AnsiConsole.Write(table);
+            _console.Write(table);
             return 0;
         }
     }
@@ -82,10 +86,12 @@ namespace PTConsole.Commands
     public class DeleteClientCommand : AsyncCommand<DeleteClientCommand.Settings>
     {
         private readonly IRepository<Client> _clientRepository;
+        private readonly IAnsiConsole _console;
 
-        public DeleteClientCommand(IRepository<Client> clientRepository)
+        public DeleteClientCommand(IRepository<Client> clientRepository, IAnsiConsole console)
         {
             _clientRepository = clientRepository;
+            _console = console;
         }
 
         public class Settings : CommandSettings
@@ -100,12 +106,12 @@ namespace PTConsole.Commands
             var client = await _clientRepository.GetAsync(settings.Id);
             if (client == null)
             {
-                AnsiConsole.MarkupLine($"[red]Client with ID {settings.Id} not found![/]");
+                _console.MarkupLine($"[red]Client with ID {settings.Id} not found![/]");
                 return 1;
             }
 
             await _clientRepository.DeleteAsync(client);
-            AnsiConsole.MarkupLine($"[green]Deleted client '{client.Name}' successfully![/]");
+            _console.MarkupLine($"[green]Deleted client '{client.Name}' successfully![/]");
             return 0;
         }
     }

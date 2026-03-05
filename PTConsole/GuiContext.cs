@@ -1,5 +1,7 @@
 using System.Text;
 using Spectre.Console;
+using Spectre.Console.Rendering;
+using PTConsole.UI;
 using TextCopy;
 
 namespace PTConsole
@@ -9,20 +11,30 @@ namespace PTConsole
         public Layout Layout { get; private set; }
 
         private Layout _contentLayout;
+        private Layout _outputLayout;
         private Layout _inputLayout;
 
         private string _userInput = "";
         private int _cursorPosition;
         private int? _selectionAnchor;
 
-        public GuiContext()
+        private int _lastWidth;
+        private int _lastHeight;
+
+        private readonly GuiCommandDispatcher _dispatcher;
+
+        public GuiContext(GuiCommandDispatcher dispatcher)
         {
+            _dispatcher = dispatcher;
+
             _contentLayout = new Layout("Content");
+            _outputLayout = new Layout("Output");
             _inputLayout = new Layout("Input");
 
             Layout = new Layout("Root")
                 .SplitRows(
                     _contentLayout,
+                    _outputLayout,
                     _inputLayout);
         }
 
@@ -92,8 +104,33 @@ namespace PTConsole
             var text = new FigletText(font, DateTime.Now.ToString());
 
             var panel = new Panel(Align.Center(text, VerticalAlignment.Middle));
-            panel.NoBorder();
+            panel.Expand();
+            panel.Border = BoxBorder.Rounded;
+            panel.Padding = new Padding(0, 0, 0, 0);
+            //panel.NoBorder();
 
+            return panel;
+        }
+
+        public Panel CreateOutputPanel()
+        {
+            var captured = _dispatcher.Console.GetCaptured();
+
+            IRenderable content;
+            if (captured.Count == 0)
+            {
+                content = new Markup("[dim]Type a command and press Enter.[/]");
+            }
+            else
+            {
+                content = new Rows(captured);
+            }
+
+            var panel = new Panel(content);
+            panel.Expand();
+            panel.Header = new PanelHeader(" Output ");
+            panel.Border = BoxBorder.Rounded;
+            panel.Padding = new Padding(1, 0, 1, 0);
             return panel;
         }
 
@@ -114,6 +151,25 @@ namespace PTConsole
 
             switch (key.Key)
             {
+                case ConsoleKey.Enter:
+                    if (!string.IsNullOrWhiteSpace(_userInput))
+                    {
+                        var input = _userInput;
+                        _userInput = "";
+                        _cursorPosition = 0;
+                        _selectionAnchor = null;
+
+                        _dispatcher.Console.Write(
+                            new Markup($"\n[bold grey]> {Markup.Escape(input)}[/]\n"));
+
+                        _dispatcher.Console.Profile.Width = Math.Max(10, System.Console.WindowWidth - 6);
+
+                        _ = Task.Run(async () =>
+                        {
+                            await _dispatcher.DispatchAsync(input);
+                        });
+                    }
+                    break;
                 case ConsoleKey.LeftArrow:
                     if (shift)
                     {
@@ -259,15 +315,28 @@ namespace PTConsole
                     }
                 });
 
+                _lastWidth = Console.WindowWidth;
+                _lastHeight = Console.WindowHeight;
+
                 while (true)
                 {
+                    var w = Console.WindowWidth;
+                    var h = Console.WindowHeight;
+                    if (w != _lastWidth || h != _lastHeight)
+                    {
+                        _lastWidth = w;
+                        _lastHeight = h;
+                        Console.Write("\x1b[2J");
+                    }
+
                     _inputLayout.Size(GetInputPanelHeight());
                     _inputLayout.Update(CreateInputPanel());
                     _contentLayout.Update(CreateContentPanel());
+                    _outputLayout.Update(CreateOutputPanel());
 
-                    Console.Write("\x1b[H");
+                    Console.Write("\x1b[?2026h\x1b[H");
                     AnsiConsole.Write(Layout);
-                    Console.Write("\x1b[H");
+                    Console.Write("\x1b[0J\x1b[?2026l");
 
                     await Task.Delay(7);
                 }

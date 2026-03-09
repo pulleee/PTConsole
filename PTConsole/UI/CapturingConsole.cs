@@ -16,7 +16,7 @@ public class CapturingConsole : IAnsiConsole
             Ansi = AnsiSupport.Yes,
             ColorSystem = ColorSystemSupport.TrueColor,
             Out = new AnsiConsoleOutput(TextWriter.Null),
-            Interactive = InteractionSupport.No,
+            Interactive = InteractionSupport.Yes,
         });
     }
 

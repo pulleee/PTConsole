@@ -1,7 +1,4 @@
 using System.Text;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using PTConsole.Infrastructure;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -12,21 +9,16 @@ public class GuiCommandDispatcher
     private readonly CapturingConsole _console;
     private readonly ICommandApp _app;
     private bool _isRunning;
+    private bool _exitRequested;
 
     public CapturingConsole Console => _console;
     public bool IsRunning => _isRunning;
+    public bool ExitRequested => _exitRequested;
 
-    public GuiCommandDispatcher(IConfiguration configuration)
+    public GuiCommandDispatcher(ICommandApp app, CapturingConsole console)
     {
-        _console = new CapturingConsole();
-
-        var startup = new Startup(configuration);
-        var services = new ServiceCollection();
-        startup.ConfigureServices(services);
-        startup.ConfigureGuiServices(services, _console);
-
-        _app = new CommandApp(new TypeRegistrar(services));
-        startup.ConfigureGuiCommands(_app, _console);
+        _app = app;
+        _console = console;
     }
 
     public async Task<int> DispatchAsync(string input)
@@ -38,6 +30,13 @@ public class GuiCommandDispatcher
         {
             var args = SplitArgs(input.Trim());
             if (args.Length == 0) return 0;
+
+            if (args[0].Equals("exit", StringComparison.OrdinalIgnoreCase) ||
+                args[0].Equals("quit", StringComparison.OrdinalIgnoreCase))
+            {
+                _exitRequested = true;
+                return 0;
+            }
 
             return await _app.RunAsync(args);
         }

@@ -21,6 +21,9 @@ namespace PTConsole
         private int _lastWidth;
         private int _lastHeight;
 
+        private int _outputScrollOffset; // 0 = bottom (auto-scroll), positive = scrolled up
+        private int _lastCapturedCount;
+
         private readonly GuiCommandDispatcher _dispatcher;
 
         public GuiContext(GuiCommandDispatcher dispatcher)
@@ -112,23 +115,64 @@ namespace PTConsole
             return panel;
         }
 
+        private int GetOutputPanelInnerHeight()
+        {
+            var contentHeight = _contentLayout.Size ?? 0;
+            var inputHeight = _inputLayout.Size ?? GetInputPanelHeight();
+            // total height minus content, input, and 2 for output panel borders
+            return Math.Max(1, Console.WindowHeight - contentHeight - inputHeight - 2);
+        }
+
         public Panel CreateOutputPanel()
         {
             var captured = _dispatcher.Console.GetCaptured();
 
+            // Auto-scroll when new output arrives and we're at the bottom
+            if (captured.Count != _lastCapturedCount)
+            {
+                if (_outputScrollOffset == 0 || _lastCapturedCount == 0)
+                    _outputScrollOffset = 0; // stay at bottom
+                else
+                    _outputScrollOffset += captured.Count - _lastCapturedCount; // keep position
+                _lastCapturedCount = captured.Count;
+            }
+
             IRenderable content;
+            string scrollIndicator = "";
+
             if (captured.Count == 0)
             {
                 content = new Markup("[dim]Type a command and press Enter.[/]");
             }
             else
             {
-                content = new Rows(captured);
+                var innerHeight = GetOutputPanelInnerHeight();
+
+                // Clamp scroll offset
+                var maxOffset = Math.Max(0, captured.Count - innerHeight);
+                _outputScrollOffset = Math.Clamp(_outputScrollOffset, 0, maxOffset);
+
+                // Slice visible window
+                var startIndex = captured.Count - innerHeight - _outputScrollOffset;
+                var count = innerHeight;
+
+                if (startIndex < 0)
+                {
+                    count += startIndex;
+                    startIndex = 0;
+                }
+                count = Math.Min(count, captured.Count - startIndex);
+
+                var visible = captured.GetRange(startIndex, Math.Max(0, count));
+                content = visible.Count > 0 ? new Rows(visible) : new Markup("");
+
+                if (_outputScrollOffset > 0)
+                    scrollIndicator = $" [dim](+{_outputScrollOffset} below)[/]";
             }
 
             var panel = new Panel(content);
             panel.Expand();
-            panel.Header = new PanelHeader(" Output ");
+            panel.Header = new PanelHeader($" Output{scrollIndicator} ");
             panel.Border = BoxBorder.Rounded;
             panel.Padding = new Padding(1, 0, 1, 0);
             return panel;
@@ -277,6 +321,14 @@ namespace PTConsole
                     }
                     break;
 
+                case ConsoleKey.PageUp:
+                    _outputScrollOffset += GetOutputPanelInnerHeight() / 2;
+                    break;
+
+                case ConsoleKey.PageDown:
+                    _outputScrollOffset = Math.Max(0, _outputScrollOffset - GetOutputPanelInnerHeight() / 2);
+                    break;
+
                 default:
                     if (!char.IsControl(key.KeyChar))
                     {
@@ -318,7 +370,7 @@ namespace PTConsole
                 _lastWidth = Console.WindowWidth;
                 _lastHeight = Console.WindowHeight;
 
-                while (true)
+                while (!_dispatcher.ExitRequested)
                 {
                     var w = Console.WindowWidth;
                     var h = Console.WindowHeight;

@@ -19,53 +19,76 @@ namespace PTConsole
             Configuration = configuration;
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        /// <summary>
+        /// Creates a new instance of the CommandApp with configured services.
+        /// This method sets up the dependency injection container and configures the command line application.        
+        /// </summary>
+        /// <returns>Instance of ICommandApp</returns>
+        public CommandApp CreateCommandApp()
         {
-            var test = Configuration["SQLite"];
-
-            // Contexts
-            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(test));
-
-            // Services
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            var services = new ServiceCollection();
+            ConfigureServices(services);
 
             // Default console for CLI mode (stdout)
             services.AddSingleton<IAnsiConsole>(AnsiConsole.Console);
-            services.AddSingleton<IConfiguration>(Configuration);
+
+            var app = new CommandApp(new TypeRegistrar(services));
+            app.Configure(config =>
+            {
+                config.AddCommand<GuiCommand>("gui");
+                ConfigureCommands(config);
+            });
+
+            return app;
         }
 
-        public void ConfigureGuiServices(IServiceCollection services, CapturingConsole console)
+        /// <summary>
+        /// Creates a new instance of the CommandApp with configured services.
+        /// This method sets up the dependency injection container and configures the command line application.
+        /// It utilises a custom CapturingConsole to delegate the apps output into the GUI process.
+        /// </summary>
+        /// <returns>(CommandApp, CapturingConsole)</returns>
+        public (ICommandApp app, CapturingConsole console) CreateGuiCommandApp()
         {
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+
             // Override the default IAnsiConsole with the capturing one
+            var console = new CapturingConsole();
             services.AddSingleton<IAnsiConsole>(console);
             services.AddSingleton(console);
-        }
 
-        public void ConfigureCommands(ICommandApp app)
-        {
-            app.Configure(config => config.AddCommand<GuiCommand>("gui"));
-
-            app.Configure(config => config.AddBranch("client",
-                client =>
-                {
-                    client.AddCommand<CreateClientCommand>("create");
-                    client.AddCommand<DeleteClientCommand>("delete");
-                    client.AddCommand<ListClientsCommand>("list");
-                }));
-        }
-
-        public void ConfigureGuiCommands(ICommandApp app, CapturingConsole console)
-        {
+            var app = new CommandApp(new TypeRegistrar(services));
             app.Configure(config =>
             {
                 config.Settings.Console = console;
+                ConfigureCommands(config);
+            });
 
-                config.AddBranch("client", client =>
-                {
-                    client.AddCommand<CreateClientCommand>("create");
-                    client.AddCommand<DeleteClientCommand>("delete");
-                    client.AddCommand<ListClientsCommand>("list");
-                });
+            return (app, console);
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            var dataSource = Configuration["SQLite"];
+
+            // Contexts
+            services.AddDbContext<DatabaseContext>(options => options.UseSqlite(dataSource));
+
+            // Config
+            services.AddSingleton<IConfiguration>(Configuration);
+
+            // Services
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+        }
+
+        private static void ConfigureCommands(IConfigurator config)
+        {
+            config.AddBranch("client", client =>
+            {
+                client.AddCommand<CreateClientCommand>("create");
+                client.AddCommand<DeleteClientCommand>("delete");
+                client.AddCommand<ListClientsCommand>("list");
             });
         }
     }

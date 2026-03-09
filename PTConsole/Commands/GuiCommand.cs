@@ -19,9 +19,14 @@ namespace PTConsole.Commands
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
-            var dispatcher = new GuiCommandDispatcher(_configuration);
+            var startup = new Startup(_configuration);
+            var (app, console) = startup.CreateGuiCommandApp();
+
+            var dispatcher = new GuiCommandDispatcher(app, console);
             var gui = new GuiContext(dispatcher);
+
             await gui.Draw();
+
             return 0;
         }
     }

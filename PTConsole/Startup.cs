@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PTConsole.Commands;
 using PTConsole.Infrastructure;
 using PTConsole.Interfaces;
+using PTConsole.Models;
 using PTConsole.UI;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -84,12 +85,9 @@ namespace PTConsole
 
         private static void ConfigureCommands(IConfigurator config)
         {
-            config.AddBranch("client", client =>
-            {
-                client.AddCommand<CreateClientCommand>("create");
-                client.AddCommand<DeleteClientCommand>("delete");
-                client.AddCommand<ListClientsCommand>("list");
-            });
+            config.AddCommand<CreateClientCommand>("create");
+            config.AddCommand<DeleteClientCommand>("delete");
+            config.AddCommand<ListClientsCommand>("list");
         }
     }
 }

@@ -1,14 +1,17 @@
 using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using PTConsole.UI.Panels.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using TextCopy;
 
-namespace PTConsole.UI;
+namespace PTConsole.UI.Panels;
 
 public class InputPanel : IPanel
 {
     private readonly GuiCommandDispatcher _dispatcher;
+
+    public BoxBorder Border { get; set; } = BoxBorder.None;
+    public Padding Padding { get; set; } = new Padding(0, 0, 0, 0);
 
     private string _userInput = "";
     private int _cursorPosition;
@@ -191,8 +194,9 @@ public class InputPanel : IPanel
 
         var markup = BuildInputMarkup();
         var panel = new Panel(Align.Left(new Markup(markup), VerticalAlignment.Middle));
-        panel.Border = BoxBorder.Rounded;
-        panel.Padding = new Padding(0, 0, 0, 0);
+        panel.Border = Border;
+        panel.Padding = Padding;
+
         return panel;
     }
 

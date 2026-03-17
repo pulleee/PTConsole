@@ -1,34 +1,48 @@
+using PTConsole.UI.Panels.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
-namespace PTConsole.UI;
+namespace PTConsole.UI.Panels;
 
-public class OutputPanel : IPanel
+public class OutputPanel : IRenderable, IPanel
 {
+    public BoxBorder Border { get; set; } = BoxBorder.Square;
+    public Padding Padding { get; set; } = new Padding(1, 0, 1, 0);
+
     private readonly CapturingConsole _console;
     private int _scrollOffset; // 0 = bottom (auto-scroll), positive = scrolled up
     private int _lastCapturedCount;
-    private readonly Func<int> _getInnerHeight;
 
     public bool IsDirty => _console.GetCaptured().Count != _lastCapturedCount;
 
-    public OutputPanel(CapturingConsole console, Func<int> getInnerHeight)
+    public OutputPanel(CapturingConsole console)
     {
         _console = console;
-        _getInnerHeight = getInnerHeight;
     }
 
-    public void ScrollUp()
+    public void ScrollUp(int visibleHeight)
     {
-        _scrollOffset += _getInnerHeight() / 2;
+        var amount = Math.Max(1, visibleHeight / 2);
+        _scrollOffset += amount;
     }
 
-    public void ScrollDown()
+    public void ScrollDown(int visibleHeight)
     {
-        _scrollOffset = Math.Max(0, _scrollOffset - _getInnerHeight() / 2);
+        var amount = Math.Max(1, visibleHeight / 2);
+        _scrollOffset = Math.Max(0, _scrollOffset - amount);
     }
 
-    public IRenderable Render()
+    // IPanel.Render - returns self since we are the renderable
+    public IRenderable Render() => this;
+
+    // IRenderable.Measure
+    public Measurement Measure(RenderOptions options, int maxWidth)
+    {
+        return new Measurement(maxWidth, maxWidth);
+    }
+
+    // IRenderable.Render
+    IEnumerable<Segment> IRenderable.Render(RenderOptions options, int maxWidth)
     {
         var captured = _console.GetCaptured();
 
@@ -41,6 +55,13 @@ public class OutputPanel : IPanel
             _lastCapturedCount = captured.Count;
         }
 
+        // Border takes 2 chars width, padding takes left+right
+        var innerWidth = Math.Max(1, maxWidth - 2 - Padding.Left - Padding.Right);
+
+        // Estimate available height from console, minus border top/bottom
+        var totalHeight = options.Height ?? Console.WindowHeight;
+        var innerHeight = Math.Max(1, totalHeight - 2 - Padding.Top - Padding.Bottom);
+
         IRenderable content;
         string scrollIndicator = "";
 
@@ -50,8 +71,6 @@ public class OutputPanel : IPanel
         }
         else
         {
-            var innerHeight = _getInnerHeight();
-
             var maxOffset = Math.Max(0, captured.Count - innerHeight);
             _scrollOffset = Math.Clamp(_scrollOffset, 0, maxOffset);
 
@@ -74,9 +93,11 @@ public class OutputPanel : IPanel
 
         var panel = new Panel(content);
         panel.Expand();
-        panel.Header = new PanelHeader($" Output{scrollIndicator} ");
-        panel.Border = BoxBorder.Rounded;
-        panel.Padding = new Padding(1, 0, 1, 0);
-        return panel;
+        panel.Header = new PanelHeader($"{scrollIndicator}");
+        panel.Border = Border;
+        panel.Padding = Padding;
+
+        // Delegate segment rendering to the composed Panel
+        return ((IRenderable)panel).Render(options, maxWidth);
     }
 }

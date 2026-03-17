@@ -12,17 +12,20 @@ namespace PTConsole.Commands
         {
         }
 
-        public GuiCommand(IConfiguration configuration)
+        private readonly GuiContext _guiContext;
+
+        public GuiCommand(IConfiguration configuration, GuiContext guiContext)
         {
             _configuration = configuration;
+            _guiContext = guiContext;
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
         {
             var startup = new Startup(_configuration);
-            var (app, console) = startup.CreateGuiCommandApp();
+            var app = startup.CreateGuiCommandApp();
 
-            var dispatcher = new GuiCommandDispatcher(app, console);
+            var dispatcher = new GuiCommandDispatcher(app, _guiContext.Console);
             var gui = new GuiContext(dispatcher);
 
             await gui.Draw();

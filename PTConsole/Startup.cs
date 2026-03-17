@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PTConsole.Commands;
@@ -6,6 +6,7 @@ using PTConsole.Infrastructure;
 using PTConsole.Interfaces;
 using PTConsole.Models;
 using PTConsole.UI;
+using PTConsole.UI.Commands;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -22,7 +23,7 @@ namespace PTConsole
 
         /// <summary>
         /// Creates a new instance of the CommandApp with configured services.
-        /// This method sets up the dependency injection container and configures the command line application.        
+        /// This method sets up the dependency injection container and configures the command line application.
         /// </summary>
         /// <returns>Instance of ICommandApp</returns>
         public CommandApp CreateCommandApp()
@@ -48,11 +49,14 @@ namespace PTConsole
         /// This method sets up the dependency injection container and configures the command line application.
         /// It utilises a custom CapturingConsole to delegate the apps output into the GUI process.
         /// </summary>
-        /// <returns>(CommandApp, CapturingConsole)</returns>
-        public (ICommandApp app, CapturingConsole console) CreateGuiCommandApp()
+        /// <returns>CommandApp</returns>
+        public ICommandApp CreateGuiCommandApp()
         {
             var services = new ServiceCollection();
             ConfigureServices(services);
+            
+            // Add GuiContext
+            services.AddSingleton<GuiContext>();
 
             // Override the default IAnsiConsole with the capturing one
             var console = new CapturingConsole();
@@ -64,9 +68,10 @@ namespace PTConsole
             {
                 config.Settings.Console = console;
                 ConfigureCommands(config);
+                ConfigureGuiCommands(config);
             });
 
-            return (app, console);
+            return app;
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -88,6 +93,12 @@ namespace PTConsole
             config.AddCommand<CreateClientCommand>("create");
             config.AddCommand<DeleteClientCommand>("delete");
             config.AddCommand<ListClientsCommand>("list");
+        }
+
+        public static void ConfigureGuiCommands(IConfigurator config)
+        {
+            config.AddCommand<OutputCommand>("output");
+            config.AddCommand<ClockCommand>("clock");
         }
     }
 }

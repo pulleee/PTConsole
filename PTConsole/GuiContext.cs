@@ -7,6 +7,10 @@ namespace PTConsole
 {
     public class GuiContext
     {
+        private readonly string CONTENT_NAME = "Content";
+        private readonly string INPUT_NAME = "Input";
+        private readonly string OUTPUT_NAME = "Output";
+
         private Layout _root;
 
         private int _lastWidth;
@@ -31,7 +35,7 @@ namespace PTConsole
             _contentPanel = new SplashPanel();
             _contentChanged = true;
 
-            _root = BuildLayout(showOutput: false);
+            _root = BuildLayout(showOutput: true);
         }
 
         public void SetContent(IRenderable content)
@@ -138,26 +142,26 @@ namespace PTConsole
         {
             if (force || _contentChanged || (_contentPanel is IHasDirtyState ds && ds.IsDirty))
             {
-                _root["Content"].Update(_contentPanel ?? (IRenderable)new Markup(""));
+                _root[CONTENT_NAME].Update(_contentPanel ?? new Markup(""));
                 _contentChanged = false;
             }
 
             if (force || _outputPanel.IsDirty)
-                _root["Output"].Update(_outputPanel);
+                _root[OUTPUT_NAME].Update(_outputPanel);
 
             if (force || _inputPanel.IsDirty)
-                _root["Input"].Update(_inputPanel);
+                _root[INPUT_NAME].Update(_inputPanel);
         }
 
         private Layout BuildLayout(bool showOutput)
         {
             var layout = new Layout("Root")
                 .SplitRows(
-                    new Layout("Content").Ratio(1),
-                    new Layout("Output").Ratio(1),
-                    new Layout("Input").Size(3));
+                    new Layout(CONTENT_NAME).Ratio(1),
+                    new Layout(OUTPUT_NAME).Ratio(1),
+                    new Layout(INPUT_NAME).Size(3));
 
-            layout["Output"].IsVisible = showOutput;
+            layout[OUTPUT_NAME].IsVisible = showOutput;
 
             return layout;
         }

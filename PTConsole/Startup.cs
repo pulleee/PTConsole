@@ -38,6 +38,7 @@ namespace PTConsole
             app.Configure(config =>
             {
                 config.AddCommand<GuiCommand>("gui");
+
                 ConfigureCommands(config);
             });
 
@@ -45,30 +46,44 @@ namespace PTConsole
         }
 
         /// <summary>
-        /// Creates a new instance of the CommandApp with configured services.
-        /// This method sets up the dependency injection container and configures the command line application.
-        /// It utilises a custom CapturingConsole to delegate the apps output into the GUI process.
+        /// Creates a CommandApp for GUI mode.
+        /// Registers CapturingConsole, an inner ICommandApp for dispatching GUI input,
+        /// GuiCommandDispatcher, and GuiContext into DI so that GuiCommand
+        /// receives a fully constructed GuiContext.
         /// </summary>
-        /// <returns>CommandApp</returns>
-        public ICommandApp CreateGuiCommandApp()
+        public CommandApp CreateGuiCommandApp()
         {
             var services = new ServiceCollection();
             ConfigureServices(services);
-            
-            // Add GuiContext
-            services.AddSingleton<GuiContext>();
 
-            // Override the default IAnsiConsole with the capturing one
-            var console = new CapturingConsole();
-            services.AddSingleton<IAnsiConsole>(console);
-            services.AddSingleton(console);
+            services.AddSingleton<GuiContext>();
+            services.AddSingleton<GuiCommandDispatcher>(sp =>
+            {
+                var innerServices = new ServiceCollection();
+                var capturingConsole = new CapturingConsole();
+
+                innerServices.AddSingleton<IAnsiConsole>(capturingConsole);
+                innerServices.AddSingleton(capturingConsole);
+
+                // Load GuiContext lazily in inner application
+                innerServices.AddSingleton(_ => sp.GetRequiredService<GuiContext>());
+
+                var innerApp = new CommandApp(new TypeRegistrar(innerServices));
+                innerApp.Configure(config =>
+                {
+                    config.Settings.Console = capturingConsole;
+
+                    ConfigureCommands(config);
+                    ConfigureGuiCommands(config);
+                });
+
+                return new GuiCommandDispatcher(innerApp, capturingConsole);
+            });
 
             var app = new CommandApp(new TypeRegistrar(services));
             app.Configure(config =>
             {
-                config.Settings.Console = console;
-                ConfigureCommands(config);
-                ConfigureGuiCommands(config);
+                config.AddCommand<GuiCommand>("gui");
             });
 
             return app;

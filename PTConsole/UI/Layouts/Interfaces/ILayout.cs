@@ -6,6 +6,5 @@ namespace PTConsole.UI.Layouts.Interfaces
     {
         bool IsDirty { get; }
         Layout Render();
-        int? Size => null;
     }
 }

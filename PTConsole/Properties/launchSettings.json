@@ -2,7 +2,7 @@
   "profiles": {
     "PTConsole": {
       "commandName": "Project",
-      "commandLineArgs": "gui"
+      "commandLineArgs": "gui\r\n"
     }
   }
 }

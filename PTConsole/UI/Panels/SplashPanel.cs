@@ -4,22 +4,25 @@ using Spectre.Console.Rendering;
 
 namespace PTConsole.UI.Panels;
 
-public class SplashPanel : IPanel
+public class SplashPanel : AbstractRenderable
 {
-    public BoxBorder Border { get; set; } = BoxBorder.None;
-    public Padding Padding { get; set; } = new Padding(0, 0, 0, 0);
-
     private readonly FigletFont _font;
-    private IRenderable _cached;
-
-    public bool IsDirty => false;
 
     public SplashPanel()
     {
         _font = FigletFont.Load("Resources\\graffiti.flf");
-        var text = new FigletText(_font, "PTConsole");
-        _cached = Align.Center(text, VerticalAlignment.Middle);
     }
 
-    public IRenderable Render() => _cached;
+    public override Measurement Measure(RenderOptions options, int maxWidth)
+    {
+        return new Measurement(maxWidth, maxWidth);
+    }
+
+    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
+    {
+        var text = new FigletText(_font, "PTConsole");
+        var content = Align.Center(text, VerticalAlignment.Middle);
+
+        return ((IRenderable)content).Render(options, maxWidth);
+    }
 }

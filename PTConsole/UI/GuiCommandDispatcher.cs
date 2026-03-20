@@ -1,5 +1,4 @@
 using System.Text;
-using PTConsole.UI.Commands;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -39,7 +38,6 @@ public class GuiCommandDispatcher
                 return 0;
             }
 
-            // Fall through to CLI commands
             return await _app.RunAsync(args);
         }
         catch (Exception ex)

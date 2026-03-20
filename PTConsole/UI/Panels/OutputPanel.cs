@@ -4,7 +4,7 @@ using Spectre.Console.Rendering;
 
 namespace PTConsole.UI.Panels;
 
-public class OutputPanel : IRenderable, IPanel
+public class OutputPanel : AbstractRenderable, IHasDirtyState
 {
     public BoxBorder Border { get; set; } = BoxBorder.Square;
     public Padding Padding { get; set; } = new Padding(1, 0, 1, 0);
@@ -32,17 +32,12 @@ public class OutputPanel : IRenderable, IPanel
         _scrollOffset = Math.Max(0, _scrollOffset - amount);
     }
 
-    // IPanel.Render - returns self since we are the renderable
-    public IRenderable Render() => this;
-
-    // IRenderable.Measure
-    public Measurement Measure(RenderOptions options, int maxWidth)
+    public override Measurement Measure(RenderOptions options, int maxWidth)
     {
         return new Measurement(maxWidth, maxWidth);
     }
 
-    // IRenderable.Render
-    IEnumerable<Segment> IRenderable.Render(RenderOptions options, int maxWidth)
+    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
     {
         var captured = _console.GetCaptured();
 
@@ -97,7 +92,6 @@ public class OutputPanel : IRenderable, IPanel
         panel.Border = Border;
         panel.Padding = Padding;
 
-        // Delegate segment rendering to the composed Panel
         return ((IRenderable)panel).Render(options, maxWidth);
     }
 }

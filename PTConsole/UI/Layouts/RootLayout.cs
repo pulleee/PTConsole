@@ -11,9 +11,10 @@ public class RootLayout
     private readonly List<string> _slotOrder = new();
     private readonly Dictionary<string, Layout> _slots = new();
     private readonly Dictionary<string, int?> _slotSizes = new();
+    private readonly Dictionary<string, int?> _slotRatios = new();
     private readonly HashSet<string> _visibleSlots = new();
 
-    private readonly Dictionary<string, IPanel> _panels = new();
+    private readonly Dictionary<string, AbstractRenderable> _panels = new();
     private readonly Dictionary<string, ILayout> _layouts = new();
 
     private bool _structureDirty;
@@ -38,8 +39,15 @@ public class RootLayout
     public void SetSize(string slotName, int size)
     {
         _slotSizes[slotName] = size;
-        if (_slots.TryGetValue(slotName, out var slot))
-            slot.Size(size);
+        _slotRatios.Remove(slotName);
+        _structureDirty = true;
+    }
+
+    public void SetRatio(string slotName, int ratio)
+    {
+        _slotRatios[slotName] = ratio;
+        _slotSizes.Remove(slotName);
+        _structureDirty = true;
     }
 
     public void ShowSlot(string slotName)
@@ -56,7 +64,7 @@ public class RootLayout
 
     public bool IsSlotVisible(string slotName) => _visibleSlots.Contains(slotName);
 
-    public void RegisterPanel(string slotName, IPanel panel)
+    public void RegisterPanel(string slotName, AbstractRenderable panel)
     {
         _panels[slotName] = panel;
     }
@@ -124,6 +132,8 @@ public class RootLayout
                 _slots[n] = layout;
                 if (_slotSizes.TryGetValue(n, out var size) && size.HasValue)
                     layout.Size(size.Value);
+                else if (_slotRatios.TryGetValue(n, out var ratio) && ratio.HasValue)
+                    layout.Ratio(ratio.Value);
                 return layout;
             })
             .ToArray();

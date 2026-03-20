@@ -4,33 +4,27 @@ using Spectre.Console.Rendering;
 
 namespace PTConsole.UI.Panels;
 
-public class ClockPanel : IPanel
+public class ClockPanel : AbstractRenderable, IHasDirtyState
 {
     public BoxBorder Border { get; set; } = BoxBorder.Square;
     public Padding Padding { get; set; } = new Padding(0, 0, 0, 0);
 
     private readonly FigletFont _font;
     private string _lastTimeString = "";
-    private IRenderable _cached = null!;
 
     public bool IsDirty => DateTime.Now.ToString() != _lastTimeString;
 
     public ClockPanel()
     {
         _font = FigletFont.Load("Resources\\graffiti.flf");
-        RebuildPanel();
     }
 
-    public IRenderable Render()
+    public override Measurement Measure(RenderOptions options, int maxWidth)
     {
-        var timeString = DateTime.Now.ToString();
-        if (timeString != _lastTimeString)
-            RebuildPanel();
-
-        return _cached;
+        return new Measurement(maxWidth, maxWidth);
     }
 
-    private void RebuildPanel()
+    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
     {
         _lastTimeString = DateTime.Now.ToString();
         var text = new FigletText(_font, _lastTimeString);
@@ -40,6 +34,6 @@ public class ClockPanel : IPanel
         panel.Border = Border;
         panel.Padding = Padding;
 
-        _cached = panel;
+        return ((IRenderable)panel).Render(options, maxWidth);
     }
 }

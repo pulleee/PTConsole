@@ -27,10 +27,16 @@ namespace PTConsole
             _inputPanel = new InputPanel(dispatcher);
 
             // Content layout starts with the splash screen
-            _contentLayout.SetPanel(new SplashPanel());
+            _contentLayout.SetContent(new SplashPanel());
 
             // Root: Content + Output + Input, but Output is hidden by default
             _root.WithRows("Content", "Output", "Input");
+
+            // Input sticks to the bottom with a fixed height
+            _root.SetSize("Input", 3);
+            // Content fills remaining space; when Output is shown they split evenly
+            _root.SetRatio("Content", 1);
+            _root.SetRatio("Output", 1);
 
             _root.RegisterLayout("Content", _contentLayout);
             _root.RegisterPanel("Output", _outputPanel);
@@ -39,9 +45,9 @@ namespace PTConsole
             _root.HideSlot("Output");
         }
 
-        public void SetContent(IPanel panel) => _contentLayout.SetPanel(panel);
+        public void SetContent(AbstractRenderable content) => _contentLayout.SetContent(content);
 
-        public void ClearContent() => _contentLayout.ClearPanel();
+        public void ClearContent() => _contentLayout.ClearContent();
 
         public void ShowSlot(string slotName) => _root.ShowSlot(slotName);
 

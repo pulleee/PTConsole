@@ -6,7 +6,7 @@ using TextCopy;
 
 namespace PTConsole.UI.Panels;
 
-public class InputPanel : IPanel
+public class InputPanel : AbstractRenderable, IHasDirtyState
 {
     private readonly GuiCommandDispatcher _dispatcher;
 
@@ -23,6 +23,23 @@ public class InputPanel : IPanel
     public InputPanel(GuiCommandDispatcher dispatcher)
     {
         _dispatcher = dispatcher;
+    }
+
+    public override Measurement Measure(RenderOptions options, int maxWidth)
+    {
+        return new Measurement(maxWidth, maxWidth);
+    }
+
+    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
+    {
+        _dirty = false;
+
+        var markup = BuildInputMarkup();
+        var panel = new Panel(Align.Left(new Markup(markup), VerticalAlignment.Middle));
+        panel.Border = Border;
+        panel.Padding = Padding;
+
+        return ((IRenderable)panel).Render(options, maxWidth);
     }
 
     public void HandleKey(ConsoleKeyInfo key)
@@ -186,18 +203,6 @@ public class InputPanel : IPanel
         var visibleLength = 2 + _userInput.Length + 1;
         var lines = (int)Math.Ceiling((double)visibleLength / innerWidth);
         return Math.Max(1, lines) + 2;
-    }
-
-    public IRenderable Render()
-    {
-        _dirty = false;
-
-        var markup = BuildInputMarkup();
-        var panel = new Panel(Align.Left(new Markup(markup), VerticalAlignment.Middle));
-        panel.Border = Border;
-        panel.Padding = Padding;
-
-        return panel;
     }
 
     private (int start, int end) GetSelectionRange()

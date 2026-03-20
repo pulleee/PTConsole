@@ -7,29 +7,22 @@ namespace PTConsole
     {
         public static async Task Main(string[] args)
         {
-            int returnCode = 0;
-            ICommandApp app = CreateCommandApp();
+            var startup = new Startup(BuildConfiguration());
 
-            do
-            {
-                returnCode = await app.RunAsync(args);
+            var isGui = args.Length > 0 && args[0].Equals("gui", StringComparison.OrdinalIgnoreCase);
+            ICommandApp app = isGui ? startup.CreateGuiCommandApp() : startup.CreateCommandApp();
 
-            } while (returnCode > 0);
+            await app.RunAsync(args);
         }
 
-
-        public static ICommandApp CreateCommandApp()
+        private static IConfiguration BuildConfiguration()
         {
-            var configuration = new ConfigurationBuilder()
+            return new ConfigurationBuilder()
                 .AddInMemoryCollection(new Dictionary<string, string?>()
                 {
                     ["SQLite"] = "Data Source=Db.sqlite"
                 })
                 .Build();
-
-            var app = new Startup(configuration).CreateCommandApp(); 
-
-            return app;
         }
     }
 }

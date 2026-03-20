@@ -8,20 +8,20 @@ public class ContentLayout : ILayout
 {
     //TODO: For now we only handle one panel in the ContentLayout for splicity
     //      A layout structure with add/remove mechanics needs to be created
-    private IPanel? _panel;
+    private AbstractRenderable? _content;
     private bool _panelChanged;
 
-    public bool IsDirty => _panelChanged || (_panel?.IsDirty ?? false);
+    public bool IsDirty => _panelChanged || (_content?.IsDirty ?? false);
 
-    public void SetPanel(IPanel panel)
+    public void SetContent(AbstractRenderable panel)
     {
-        _panel = panel;
+        _content = panel;
         _panelChanged = true;
     }
 
-    public void ClearPanel()
+    public void ClearContent()
     {
-        _panel = null;
+        _content = null;
         _panelChanged = true;
     }
 
@@ -31,8 +31,8 @@ public class ContentLayout : ILayout
 
         var layout = new Layout("ContentInner");
 
-        if (_panel != null)
-            layout.Update(_panel.Render());
+        if (_content != null)
+            layout.Update(_content.Render());
         else
             layout.Update(new Markup(""));
 

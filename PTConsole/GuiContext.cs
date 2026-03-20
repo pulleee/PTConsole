@@ -1,15 +1,13 @@
 using Spectre.Console;
+using Spectre.Console.Rendering;
 using PTConsole.UI;
-using PTConsole.UI.Layouts;
 using PTConsole.UI.Panels;
-using PTConsole.UI.Panels.Interfaces;
 
 namespace PTConsole
 {
     public class GuiContext
     {
-        private readonly RootLayout _root = new RootLayout();
-        private readonly ContentLayout _contentLayout = new ContentLayout();
+        private Layout _root;
 
         private int _lastWidth;
         private int _lastHeight;
@@ -17,6 +15,9 @@ namespace PTConsole
         private readonly GuiCommandDispatcher _dispatcher;
         private readonly OutputPanel _outputPanel;
         private readonly InputPanel _inputPanel;
+
+        private IRenderable? _contentPanel;
+        private bool _contentChanged;
 
         public GuiContext(GuiCommandDispatcher dispatcher)
         {
@@ -26,34 +27,36 @@ namespace PTConsole
             _outputPanel = new OutputPanel(dispatcher.Console);
             _inputPanel = new InputPanel(dispatcher);
 
-            // Content layout starts with the splash screen
-            _contentLayout.SetContent(new SplashPanel());
+            // Content starts with the splash screen
+            _contentPanel = new SplashPanel();
+            _contentChanged = true;
 
-            // Root: Content + Output + Input, but Output is hidden by default
-            _root.WithRows("Content", "Output", "Input");
-
-            // Input sticks to the bottom with a fixed height
-            _root.SetSize("Input", 3);
-            // Content fills remaining space; when Output is shown they split evenly
-            _root.SetRatio("Content", 1);
-            _root.SetRatio("Output", 1);
-
-            _root.RegisterLayout("Content", _contentLayout);
-            _root.RegisterPanel("Output", _outputPanel);
-            _root.RegisterPanel("Input", _inputPanel);
-
-            _root.HideSlot("Output");
+            _root = BuildLayout(showOutput: false);
         }
 
-        public void SetContent(AbstractRenderable content) => _contentLayout.SetContent(content);
+        public void SetContent(IRenderable content)
+        {
+            _contentPanel = content;
+            _contentChanged = true;
+        }
 
-        public void ClearContent() => _contentLayout.ClearContent();
+        public void ClearContent()
+        {
+            _contentPanel = null;
+            _contentChanged = true;
+        }
 
-        public void ShowSlot(string slotName) => _root.ShowSlot(slotName);
+        public void ShowSlot(string slotName)
+        {
+            _root[slotName].IsVisible = true;
+        }
 
-        public void HideSlot(string slotName) => _root.HideSlot(slotName);
+        public void HideSlot(string slotName)
+        {
+            _root[slotName].IsVisible = false;
+        }
 
-        public bool IsSlotVisible(string slotName) => _root.IsSlotVisible(slotName);
+        public bool IsSlotVisible(string slotName) => _root[slotName].IsVisible;
 
         public async Task Draw()
         {
@@ -94,7 +97,7 @@ namespace PTConsole
                 _lastHeight = Console.WindowHeight;
 
                 // Force initial render
-                _root.Update(force: true);
+                UpdateSlots(force: true);
 
                 while (!_dispatcher.ExitRequested)
                 {
@@ -109,15 +112,15 @@ namespace PTConsole
 
                         Console.Write("\x1b[2J");
 
-                        _root.Update(force: true);
+                        UpdateSlots(force: true);
                     }
                     else
                     {
-                        _root.Update();
+                        UpdateSlots();
                     }
 
                     Console.Write("\x1b[?2026h\x1b[H");
-                    AnsiConsole.Write(_root.Layout);
+                    AnsiConsole.Write(_root);
                     Console.Write("\x1b[0J\x1b[?2026l");
 
                     await Task.Delay(7);
@@ -129,6 +132,34 @@ namespace PTConsole
                 Console.Write("\x1b[?1049l");
                 Console.CursorVisible = true;
             }
+        }
+
+        private void UpdateSlots(bool force = false)
+        {
+            if (force || _contentChanged || (_contentPanel is IHasDirtyState ds && ds.IsDirty))
+            {
+                _root["Content"].Update(_contentPanel ?? (IRenderable)new Markup(""));
+                _contentChanged = false;
+            }
+
+            if (force || _outputPanel.IsDirty)
+                _root["Output"].Update(_outputPanel);
+
+            if (force || _inputPanel.IsDirty)
+                _root["Input"].Update(_inputPanel);
+        }
+
+        private Layout BuildLayout(bool showOutput)
+        {
+            var layout = new Layout("Root")
+                .SplitRows(
+                    new Layout("Content").Ratio(1),
+                    new Layout("Output").Ratio(1),
+                    new Layout("Input").Size(3));
+
+            layout["Output"].IsVisible = showOutput;
+
+            return layout;
         }
     }
 }

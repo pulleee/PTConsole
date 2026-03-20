@@ -1,12 +1,11 @@
 using System.Text;
-using PTConsole.UI.Panels.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 using TextCopy;
 
 namespace PTConsole.UI.Panels;
 
-public class InputPanel : AbstractRenderable, IHasDirtyState
+public class InputPanel : IRenderable, IHasDirtyState
 {
     private readonly GuiCommandDispatcher _dispatcher;
 
@@ -25,12 +24,12 @@ public class InputPanel : AbstractRenderable, IHasDirtyState
         _dispatcher = dispatcher;
     }
 
-    public override Measurement Measure(RenderOptions options, int maxWidth)
+    public Measurement Measure(RenderOptions options, int maxWidth)
     {
         return new Measurement(maxWidth, maxWidth);
     }
 
-    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
+    public IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
     {
         _dirty = false;
 

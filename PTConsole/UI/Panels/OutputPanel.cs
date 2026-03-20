@@ -1,10 +1,9 @@
-using PTConsole.UI.Panels.Interfaces;
 using Spectre.Console;
 using Spectre.Console.Rendering;
 
 namespace PTConsole.UI.Panels;
 
-public class OutputPanel : AbstractRenderable, IHasDirtyState
+public class OutputPanel : IRenderable, IHasDirtyState
 {
     public BoxBorder Border { get; set; } = BoxBorder.Square;
     public Padding Padding { get; set; } = new Padding(1, 0, 1, 0);
@@ -32,12 +31,12 @@ public class OutputPanel : AbstractRenderable, IHasDirtyState
         _scrollOffset = Math.Max(0, _scrollOffset - amount);
     }
 
-    public override Measurement Measure(RenderOptions options, int maxWidth)
+    public Measurement Measure(RenderOptions options, int maxWidth)
     {
         return new Measurement(maxWidth, maxWidth);
     }
 
-    public override IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
+    public IEnumerable<Segment> Render(RenderOptions options, int maxWidth)
     {
         var captured = _console.GetCaptured();
 

@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PTConsole.Commands;
 using PTConsole.Infrastructure;
 using PTConsole.Interfaces;
-using PTConsole.Models;
 using PTConsole.UI;
 using PTConsole.UI.Commands;
 using Spectre.Console;
@@ -63,7 +62,6 @@ namespace PTConsole
                 var capturingConsole = new CapturingConsole();
 
                 innerServices.AddSingleton<IAnsiConsole>(capturingConsole);
-                innerServices.AddSingleton(capturingConsole);
 
                 // Load GuiContext lazily in inner application
                 innerServices.AddSingleton(_ => sp.GetRequiredService<GuiContext>());

@@ -7,7 +7,9 @@
       "WebFetch(domain:api.github.com)",
       "Bash(curl:*)",
       "WebFetch(domain:github.com)",
-      "WebFetch(domain:spectreconsole.net)"
+      "WebFetch(domain:spectreconsole.net)",
+      "Bash(gh api:*)",
+      "Bash(gh.exe api:*)"
     ]
   }
 }

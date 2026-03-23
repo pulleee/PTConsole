@@ -1,4 +1,4 @@
-using Spectre.Console;
+using LazyUI;
 using Spectre.Console.Cli;
 
 namespace PTConsole.UI.Commands;
@@ -16,15 +16,15 @@ public class OutputCommand : Command<OutputCommand.Settings>
         _guiContext = guiContext;
     }
 
-    public override int Execute(CommandContext context, Settings settings)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
-        if (_guiContext.IsSlotVisible("Output"))
+        if (_guiContext.IsSlotVisible(GuiContext.OUTPUT_NAME))
         {
-            _guiContext.HideSlot("Output");
+            _guiContext.HideSlot(GuiContext.OUTPUT_NAME);
         }
         else
         {
-            _guiContext.ShowSlot("Output");
+            _guiContext.ShowSlot(GuiContext.OUTPUT_NAME);
         }
 
         return 0;

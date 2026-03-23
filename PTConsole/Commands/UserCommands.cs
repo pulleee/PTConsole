@@ -22,7 +22,7 @@ namespace PTConsole.Commands
             public string Alias { get; set; } = string.Empty;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var user = new User
             {
@@ -44,7 +44,7 @@ namespace PTConsole.Commands
             _userRepository = userRepository;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context)
+        public override async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
         {
             var users = await _userRepository.GetAllAsync();
             
@@ -83,7 +83,7 @@ namespace PTConsole.Commands
             public int Id { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetAsync(settings.Id);
             if (user == null)

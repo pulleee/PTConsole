@@ -26,7 +26,7 @@ namespace PTConsole.Commands
             public int Priority { get; set; } = 0;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var task = new WorkTask
             {
@@ -49,7 +49,7 @@ namespace PTConsole.Commands
             _taskRepository = taskRepository;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context)
+        public override async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
         {
             var tasks = await _taskRepository.GetAllAsync();
             
@@ -90,7 +90,7 @@ namespace PTConsole.Commands
             public int Id { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var task = await _taskRepository.GetAsync(settings.Id);
             if (task == null)

@@ -32,7 +32,7 @@ namespace PTConsole.Commands
             public string? ColorHex { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var client = new Client
             {
@@ -58,10 +58,10 @@ namespace PTConsole.Commands
             _console = console;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context)
+        public override async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
         {
             var clients = await _clientRepository.GetAllAsync();
-            
+
             var table = new Table()
                 .AddColumn("ID")
                 .AddColumn("Name")
@@ -101,7 +101,7 @@ namespace PTConsole.Commands
             public int Id { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var client = await _clientRepository.GetAsync(settings.Id);
             if (client == null)

@@ -36,7 +36,7 @@ namespace PTConsole.Commands
             public string? ColorHex { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             Client? client = null;
             if (settings.ClientId.HasValue)
@@ -72,7 +72,7 @@ namespace PTConsole.Commands
             _projectRepository = projectRepository;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context)
+        public override async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
         {
             var projects = await _projectRepository.GetAllAsync();
             
@@ -117,7 +117,7 @@ namespace PTConsole.Commands
             public int Id { get; set; }
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             var project = await _projectRepository.GetAsync(settings.Id);
             if (project == null)

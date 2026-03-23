@@ -1,3 +1,4 @@
+using LazyUI;
 using Spectre.Console.Cli;
 
 namespace PTConsole.Commands
@@ -15,7 +16,7 @@ namespace PTConsole.Commands
             _guiContext = guiContext;
         }
 
-        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
+        public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
         {
             await _guiContext.Draw();
 

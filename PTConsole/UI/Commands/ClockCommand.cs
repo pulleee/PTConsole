@@ -1,3 +1,4 @@
+using LazyUI;
 using PTConsole.UI.Panels;
 using Spectre.Console.Cli;
 
@@ -16,7 +17,7 @@ public class ClockCommand : Command<ClockCommand.Settings>
         _guiContext = guiContext;
     }
 
-    public override int Execute(CommandContext context, Settings settings)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var clockPanel = new ClockPanel();
         _guiContext.SetContent(clockPanel);

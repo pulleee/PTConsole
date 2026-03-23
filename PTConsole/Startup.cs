@@ -4,10 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using PTConsole.Commands;
 using PTConsole.Infrastructure;
 using PTConsole.Interfaces;
-using PTConsole.UI;
 using PTConsole.UI.Commands;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using LazyUI;
 
 namespace PTConsole
 {

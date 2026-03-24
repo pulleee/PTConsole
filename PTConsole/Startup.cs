@@ -8,6 +8,7 @@ using PTConsole.UI.Commands;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using LazyUI;
+using PTConsole.Models;
 
 namespace PTConsole
 {
@@ -53,12 +54,13 @@ namespace PTConsole
         public CommandApp CreateGuiCommandApp()
         {
             var services = new ServiceCollection();
-            ConfigureServices(services);
+            //ConfigureServices(services);
 
             services.AddSingleton<GuiContext>();
             services.AddSingleton<GuiCommandDispatcher>(sp =>
             {
                 var innerServices = new ServiceCollection();
+                ConfigureServices(innerServices);
                 var capturingConsole = new CapturingConsole();
 
                 innerServices.AddSingleton<IAnsiConsole>(capturingConsole);
@@ -98,7 +100,7 @@ namespace PTConsole
             services.AddSingleton<IConfiguration>(Configuration);
 
             // Services
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
         }
 
         private static void ConfigureCommands(IConfigurator config)
@@ -112,6 +114,7 @@ namespace PTConsole
         {
             config.AddCommand<OutputCommand>("output");
             config.AddCommand<ClockCommand>("clock");
+            config.AddCommand<CubeCommand>("cube");
         }
     }
 }

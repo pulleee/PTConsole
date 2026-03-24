@@ -1,4 +1,5 @@
-﻿using PTConsole.Interfaces;
+﻿using LazyUI;
+using PTConsole.Interfaces;
 using PTConsole.Models;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -51,11 +52,13 @@ namespace PTConsole.Commands
     {
         private readonly IRepository<Client> _clientRepository;
         private readonly IAnsiConsole _console;
+        private readonly GuiContext _guiContext;
 
-        public ListClientsCommand(IRepository<Client> clientRepository, IAnsiConsole console)
+        public ListClientsCommand(IRepository<Client> clientRepository, IAnsiConsole console, GuiContext guiContext)
         {
             _clientRepository = clientRepository;
             _console = console;
+            _guiContext = guiContext;
         }
 
         public override async Task<int> ExecuteAsync(CommandContext context, CancellationToken cancellationToken)
@@ -74,11 +77,13 @@ namespace PTConsole.Commands
                     client.Id.ToString(),
                     client.Name,
                     client.Alias,
-                    $"[{client.Color.ToString()}]{client.ColorHex}[/]"
+                    $"[#{client.ColorHex}]{client.ColorHex}[/]"
                 );
             }
 
-            _console.Write(table);
+            //_console.Write(table);
+            _guiContext.SetContent(table);
+
             return 0;
         }
     }

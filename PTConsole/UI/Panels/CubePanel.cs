@@ -37,9 +37,9 @@ public class CubePanel : IRenderable, IHasDirtyState
     {
         var elapsed = (DateTime.UtcNow - _startTime).TotalSeconds;
 
-        var angleX = elapsed * 0.7;
-        var angleY = elapsed * 1.1;
-        var angleZ = elapsed * 0.4;
+        var angleX = elapsed * 1;
+        var angleY = elapsed * 1;
+        var angleZ = elapsed * 1;
 
         var innerWidth = Math.Max(1, maxWidth - 2 - Padding.Left - Padding.Right);
         var totalHeight = options.Height ?? Console.WindowHeight;
@@ -132,19 +132,25 @@ public class CubePanel : IRenderable, IHasDirtyState
 
     private static (double x, double y, double z) RotateX(double x, double y, double z, double a)
     {
-        var cos = Math.Cos(a); var sin = Math.Sin(a);
+        var cos = Math.Cos(a);
+        var sin = Math.Sin(a);
+        
         return (x, y * cos - z * sin, y * sin + z * cos);
     }
 
     private static (double x, double y, double z) RotateY(double x, double y, double z, double a)
     {
-        var cos = Math.Cos(a); var sin = Math.Sin(a);
+        var cos = Math.Cos(a);
+        var sin = Math.Sin(a);
+
         return (x * cos + z * sin, y, -x * sin + z * cos);
     }
 
     private static (double x, double y, double z) RotateZ(double x, double y, double z, double a)
     {
-        var cos = Math.Cos(a); var sin = Math.Sin(a);
+        var cos = Math.Cos(a);
+        var sin = Math.Sin(a);
+
         return (x * cos - y * sin, x * sin + y * cos, z);
     }
 }

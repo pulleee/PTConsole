@@ -8,7 +8,6 @@ using PTConsole.UI.Commands;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using LazyUI;
-using PTConsole.Models;
 
 namespace PTConsole
 {
@@ -54,7 +53,6 @@ namespace PTConsole
         public CommandApp CreateGuiCommandApp()
         {
             var services = new ServiceCollection();
-            //ConfigureServices(services);
 
             services.AddSingleton<GuiContext>();
             services.AddSingleton<GuiCommandDispatcher>(sp =>

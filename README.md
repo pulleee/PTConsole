@@ -25,11 +25,3 @@ Created to make working on a project and the related documenting more fun and ea
 
 - [] Userfriendly CLI UI for minimal interaction
 
-### TODO
-
-- Create constants for Clearing Console Strings and so on
-- Create InputOutput Layout and Seperate from GuiContext
-- Create GuiSettingsCommand and GuiSettingsPanel
-	- Color Palette, Start Settings, Keybinds
-- Create Input History > InputPanel
-

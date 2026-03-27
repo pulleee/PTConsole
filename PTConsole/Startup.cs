@@ -36,8 +36,6 @@ namespace PTConsole
             var app = new CommandApp(new TypeRegistrar(services));
             app.Configure(config =>
             {
-                config.AddCommand<GuiCommand>("gui");
-
                 ConfigureCommands(config);
             });
 
